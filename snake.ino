@@ -8,9 +8,6 @@ int VRx = A0;
 int VRy = A1;
 int SW = 2;
 
-// variables for joystick
-int SW_state = 0;
-
 // screen parameters
 int screenWidth = 84;
 int screenHeight = 48;
@@ -124,7 +121,6 @@ void displaySnake() {
   
 
 void loop() {
-  // SW_state = digitalRead(SW);
   if (con_verbose == true) {
     int mapX = map(analogRead(VRx), 0, 1023, -1, 1);
     int mapY = map(analogRead(VRy), 0, 1023, -1, 1);
