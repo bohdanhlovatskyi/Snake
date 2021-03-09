@@ -9,31 +9,26 @@ int VRy = A1;
 int SW = 2;
 
 // variables for joystick
-int SW_state = 0; // this can be used to do the second task
+int SW_state = 0;
 
 // screen parameters
 int screenWidth = 84;
 int screenHeight = 48;
-
 Adafruit_PCD8544 display = Adafruit_PCD8544(8, 9, 10, 11, 12);
-
-int memoX = 1;
-int memoY = 0;
 
 int appleX = rand() % screenWidth;
 int appleY = rand() % screenHeight;
 bool eaten_verbose = false;
 
-int snakeLen = 1;
-
-// TODO: why this does not work with variable
-int maxSnakeLen = 15;
-// creates a snake that has two parts
-int snake[15][2] = {{41, 23}, {39, 23}};
+int snake[][2] = {{41, 23}, {39, 23}};
+int snakeLen = 2;
 
 // variables for convenience
 int mainX = snake[0][0];
 int mainY = snake[0][1];
+
+int memoX = 1;
+int memoY = 0;
 
 void setup()   {
   Serial.begin(9600);
@@ -63,20 +58,14 @@ void moveFirstPixel(int mapX, int mapY) {
   };
   snake[0][0] = mainX;
   snake[0][1] = mainY;
+  checkColisions();
 }
 
 
 void moveSnake(int mapX, int mapY) {
-  // each part of snake becomes the next one
-  int temp1[2] = {mainX, mainY};
-  int temp2[2];
-  for (int i = 1; i < snakeLen; i++){
-    temp2[0] = snake[i][0];
-    temp2[1] = snake[i][1];
-    snake[i][0] = temp1[0];
-    snake[i][1] = temp1[1];
-    temp1[0] = temp2[0];
-    temp1[1] = temp2[1];
+  for (int i = snakeLen - 1; i > 0; i--){
+    snake[i][0] = snake[i - 1][0];
+    snake[i][1] = snake[i - 1][1];
   };
   moveFirstPixel(mapX, mapY);
 };
@@ -89,9 +78,7 @@ void showApple() {
     eaten_verbose = false;
   }
   display.fillRect(appleX, appleY, 4, 4, BLACK);
-  // display.drawPixel(appleX, appleY, BLACK);
 }
-
 
 void eatApple() {
   if (appleX == mainX & appleY == mainY) {
@@ -102,6 +89,15 @@ void eatApple() {
     snakeLen++;
   };
 };
+
+
+void checkColisions() {
+  for (int i = 1; i < snakeLen; i++) {
+    if (mainX == snake[i][0] || mainY == snake[i][1]) {
+      return;
+    }
+  }
+}
 
 
 void displaySnake() {
