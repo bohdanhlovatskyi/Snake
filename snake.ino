@@ -30,6 +30,8 @@ int mainY = snake[0][1];
 int memoX = 1;
 int memoY = 0;
 
+volatile bool con_verbose = true;
+
 void setup()   {
   Serial.begin(9600);
   pinMode(VRx, INPUT);
@@ -39,6 +41,20 @@ void setup()   {
   display.begin();
   display.setContrast(50);
   display.clearDisplay();   // clears the screen and buffer
+
+  attachInterrupt(digitalPinToInterrupt(SW), pause, FALLING);
+}
+
+void pause() {
+  // pauses the snake game as well as handles switch bouncing
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 200)
+  {
+     con_verbose = !con_verbose;
+  }
+  last_interrupt_time = interrupt_time;
 }
 
 
@@ -109,17 +125,19 @@ void displaySnake() {
 
 void loop() {
   // SW_state = digitalRead(SW);
-  int mapX = map(analogRead(VRx), 0, 1023, -1, 1);
-  int mapY = map(analogRead(VRy), 0, 1023, -1, 1);
-  
-  moveSnake(mapX, mapY);
+  if (con_verbose == true) {
+    int mapX = map(analogRead(VRx), 0, 1023, -1, 1);
+    int mapY = map(analogRead(VRy), 0, 1023, -1, 1);
 
-  eatApple(); // first apple is shown by default, therefore we should eat it at first to generate the next one
-  showApple(); // next apple
+    moveSnake(mapX, mapY);
 
-  displaySnake();
+    eatApple(); // first apple is shown by default, therefore we should eat it at first to generate the next one
+    showApple(); // next apple
+
+    displaySnake();
   
-  display.display();
-  delay(100); // here we can create custom delay, that will become less, if the snake becomes bigger
-  display.clearDisplay();
+    display.display();
+    delay(100); // here we can create custom delay, that will become less, if the snake becomes bigger
+    display.clearDisplay();
+  }
 }
